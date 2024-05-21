@@ -86,6 +86,22 @@ while running:
     if CircleBtn.pressed():
         Eng.editorModeSelect("Circle")
         selected.changePos(70, 300)
+    if BlackColorBtn.pressed():
+        Eng.chageColor(9)
+    if BlueColorBtn.pressed():
+        Eng.chageColor(1)
+    if RedColorBtn.pressed():
+        Eng.chageColor(2)
+    if GreenColorBtn.pressed():
+        Eng.chageColor(3)
+    if YellowColorBtn.pressed():
+        Eng.chageColor(4)
+    if MagentaColorBtn.pressed():
+        Eng.chageColor(5)
+    if PinkColorBtn.pressed():
+        Eng.chageColor(6)
+    if OrangeColorBtn.pressed():
+        Eng.chageColor(7)
 
     root.fill((223, 223, 229))
 
@@ -98,6 +114,7 @@ while running:
 
     Eng.createMat(root)
     Eng.drawOverMat()
+    Eng.eraseOverMat()
 
     selected.drawRect()
 

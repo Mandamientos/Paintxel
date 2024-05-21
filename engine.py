@@ -9,8 +9,20 @@ class Engine:
         self.cols = 30
         self.cSize = 20
         self.editorMode = "Brush"
-        self.color = 0
+        self.color = 9
         self.matrix = [[0 for _ in range(self.cols)] for _ in range(self.rows)]
+        self.color_dic = {
+            0: (255, 255, 255), # White
+            1: (0, 126, 255), # Blue
+            2: (255, 0, 0), # Red
+            3: (0, 255, 18), # Green
+            4: (246, 255, 0), # Yellow
+            5: (186, 0, 255), # Purple
+            6: (250, 207, 249), # Pink
+            7: (244, 196, 64), # Orange
+            8: (0, 255, 204), # Light Blue
+            9: (0, 0, 0) # Black
+        }
 
     def createMat(self, root):
         matbbox = pygame.Rect(300, 175, 600, 600)
@@ -18,7 +30,8 @@ class Engine:
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[i])):
                 rect = pygame.Rect(300 + j * self.cSize, 175 + i * self.cSize, self.cSize, self.cSize)
-                pygame.draw.rect(root, (255, 255, 255), rect)
+                color = self.color_dic[self.matrix[i][j]]
+                pygame.draw.rect(root, color, rect)
                 pygame.draw.rect(root, (55, 89, 89), rect, 1)
 
         if matbbox.collidepoint(mousepos) and self.editorMode == "Brush":
@@ -36,12 +49,25 @@ class Engine:
 
     def editorModeSelect(self, mode):
         self.editorMode = mode
-        print(self.editorMode)
 
+    def chageColor(self, color):
+        self.color = color
 
     def drawOverMat(self):
         if pygame.mouse.get_pressed()[0] and self.editorMode == "Brush":
-            pass
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            col = (mouse_x - 300) // self.cSize
+            row = (mouse_y - 175) // self.cSize
+            if (0 <= col < self.cols) and (0 <= row < self.rows):
+                self.matrix[row][col] = self.color
+
+    def eraseOverMat(self):
+        if pygame.mouse.get_pressed()[0] and self.editorMode == "Eraser":
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            col = (mouse_x - 300) // self.cSize
+            row = (mouse_y - 175) // self.cSize
+            if (0 <= col < self.cols) and (0 <= row < self.rows):
+                self.matrix[row][col] = 0
 
 
     def uploadImg(self):
