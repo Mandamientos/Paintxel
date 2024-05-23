@@ -88,7 +88,11 @@ class Engine:
         print(self.matrix)
 
     def viewMatNum(self):
-        pass
+        for i in range(len(self.matrix)):
+            print("\n", end="")
+            for j in range(len(self.matrix[i])):
+                print(self.matrix[i][j], end="")
+
 
     def closeImg(self):
         pass
@@ -110,8 +114,8 @@ class Engine:
 
 
 class Button:
-    def __init__(self, x, y, image, root):
-        self.image = pygame.transform.scale(image, (50, 50))
+    def __init__(self, x, y, image, root, scale):
+        self.image = pygame.transform.scale(image, (scale, scale))
         self.root = root
         self.x = x
         self.y = y
