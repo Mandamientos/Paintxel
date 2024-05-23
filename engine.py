@@ -184,8 +184,8 @@ class Engine:
         pass
 
 class Button:
-    def __init__(self, x, y, image, root):
-        self.image = pygame.transform.scale(image, (50, 50))
+    def __init__(self, x, y, image, root, scale):
+        self.image = pygame.transform.scale(image, (scale, scale))
         self.root = root
         self.x = x
         self.y = y
