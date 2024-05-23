@@ -80,8 +80,7 @@ while running:
     if uploadBtn.pressed():
         Eng.uploadImg()
     if saveBtn.pressed():
-        Eng.viewMatNum()
-        print("Save presionado")
+        Eng.saveImg()
     if BrushBtn.pressed():
         Eng.editorModeSelect("Brush")
         selected.changePos(70, 230)
