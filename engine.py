@@ -69,17 +69,53 @@ class Engine:
             if (0 <= col < self.cols) and (0 <= row < self.rows):
                 self.matrix[row][col] = 0
 
-
     def uploadImg(self):
         window = tk.Tk()
         window.withdraw()
-        path = filedialog.askopenfilename()
+        path = filedialog.askopenfilename(filetypes=[("PNG files", "*.png"), ("All files", "*.*")])
         if path == "":
             return
-        print(path)
+
+        image_surface = pygame.image.load(path)
+
+        expected_signature = [(255, 0, 255), (0, 255, 255), (255, 255, 0)]
+        actual_signature = [image_surface.get_at((i, 0))[:3] for i in range(3)]
+
+        if actual_signature != expected_signature:
+            print("El archivo seleccionado no es válido.")
+            return
+
+        image_surface = pygame.transform.scale(image_surface, (self.cols * self.cSize, self.rows * self.cSize))
+
+        for row in range(self.rows):
+            for col in range(self.cols):
+                pixel_color = image_surface.get_at(
+                    (col * self.cSize + self.cSize // 2, row * self.cSize + self.cSize // 2))[:3]
+                for color_index, color_value in self.color_dic.items():
+                    if pixel_color == color_value:
+                        self.matrix[row][col] = color_index
+                        break
 
     def saveImg(self):
-        pass
+        image_surface = pygame.Surface((self.cols * self.cSize, self.rows * self.cSize))
+
+        for row in range(self.rows):
+            for col in range(self.cols):
+                color = self.color_dic[self.matrix[row][col]]
+                rect = pygame.Rect(col * self.cSize, row * self.cSize, self.cSize, self.cSize)
+                pygame.draw.rect(image_surface, color, rect)
+
+        signature = [(255, 0, 255), (0, 255, 255), (255, 255, 0)]
+        for i, color in enumerate(signature):
+            image_surface.set_at((i, 0), color)
+
+        window = tk.Tk()
+        window.withdraw()
+        save_path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("PNG files", "*.png")])
+
+        if save_path:
+            pygame.image.save(image_surface, save_path)
+            print(f"Imagen guardada en {save_path}")
 
     def editImg(self):
         pass
@@ -88,14 +124,10 @@ class Engine:
         print(self.matrix)
 
     def viewMatNum(self):
-        for i in range(len(self.matrix)):
-            print("\n", end="")
-            for j in range(len(self.matrix[i])):
-                print(self.matrix[i][j], end="")
-
+        pass
 
     def closeImg(self):
-        pass
+        self.matrix = [[0 for i in range(self.cols)] for i in range(self.rows)]
 
     def showImg(self):
         pass
@@ -105,13 +137,51 @@ class Engine:
 
     def zoomOut(self):
         pass
-
     def rotateMatRgt(self):
-        pass
+        new_matrix = [[0 for _ in range(self.rows)] for _ in range(self.cols)]
+        for i in range(self.rows):
+            for j in range(self.cols):
+                new_matrix[j][self.rows - i - 1] = self.matrix[i][j]
+        self.rows, self.cols = self.cols, self.rows
+        self.matrix = new_matrix
 
     def rotateMatLft(self):
-        pass
+        new_matrix = [[0 for _ in range(self.rows)] for _ in range(self.cols)]
+        for i in range(self.rows):
+            for j in range(self.cols):
+                new_matrix[self.cols - j - 1][i] = self.matrix[i][j]
+        self.rows, self.cols = self.cols, self.rows
+        self.matrix = new_matrix
 
+    def reflectionH(self):
+        new_matrix = [[0 for _ in range(self.cols)] for _ in range(self.rows)]
+        for i in range(self.rows):
+            for j in range(self.cols):
+                new_matrix[i][self.cols - j - 1] = self.matrix[i][j]
+        self.matrix = new_matrix
+
+    def reflectionV(self):
+        new_matrix = [[0 for _ in range(self.cols)] for _ in range(self.rows)]
+        for i in range(self.rows):
+            new_matrix[self.rows - i - 1] = self.matrix[i]
+        self.matrix = new_matrix
+
+    def contrast(self):
+        for row in range(self.rows):
+            for col in range(self.cols):
+                if self.matrix[row][col] <= 4:
+                    self.matrix[row][col] = 0
+                else:
+                    self.matrix[row][col] = 9
+
+    def negative(self):
+        for row in range(self.rows):
+            for col in range(self.cols):
+                if self.matrix[row][col] != 0:
+                    self.matrix[row][col] = 9 - self.matrix[row][col]
+
+    def ASCIIArt(self):
+        pass
 
 class Button:
     def __init__(self, x, y, image, root, scale):
