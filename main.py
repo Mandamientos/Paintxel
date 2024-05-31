@@ -32,30 +32,42 @@ CircleImg = pygame.image.load("assets/images/circle.png")
 squareImg = pygame.image.load("assets/images/square.png")
 asciiImg = pygame.image.load("assets/images/ascii.png")
 numMatImg = pygame.image.load("assets/images/num_mat.png")
-
+rotateLeftImg = pygame.image.load("assets/images/rotateleft.png")
+rotateRightImg = pygame.image.load("assets/images/rotateright.png")
+reflectionAxisYImg = pygame.image.load("assets/images/axisy.png")
+reflectionAxisXImg = pygame.image.load("assets/images/axisx.png")
+crossImg = pygame.image.load("assets/images/cross.png")
+negativeImg = pygame.image.load("assets/images/negative.png")
+highContrImg = pygame.image.load("assets/images/highcontrast.png")
 
 # Crear objetos botón
 
-uploadBtn = Button(30, 50, uploadImg, root, 50)
-saveBtn = Button(100, 50, saveImg, root, 50)
-BrushBtn = Button(70, 230, icon, root, 50)
-EraserBtn = Button(150, 230, eraserImg, root, 50)
-CircleBtn = Button(70, 300, CircleImg, root, 50)
-SquareBtn = Button(150, 300, squareImg, root, 50)
-BlackColorBtn = Button(65, 450, blackColorImg, root, 50)
-BlueColorBtn = Button(150, 450, blueColorImg, root, 50)
-RedColorBtn = Button(65, 520, redColorImg, root, 50)
-GreenColorBtn = Button(150, 520, greenColorImg, root, 50)
-YellowColorBtn = Button(65, 590, yellowColorImg, root, 50)
-MagentaColorBtn = Button(150, 590, magentaColorImg, root, 50)
-PinkColorBtn = Button(65, 660, pinkColorImg, root, 50)
-OrangeColorBtn = Button(150, 660, orangeColorImg, root, 50)
-LBColorBtn = Button(105, 730, LBColorImg, root, 50)
-AscBtn = Button(300, 30, asciiImg, root, 100)
-NumMat = Button(450, 30, numMatImg, root, 100)
+uploadBtn = Button(30, 50, uploadImg, root, 50, 50)
+saveBtn = Button(100, 50, saveImg, root, 50, 50)
+crossBtn = Button(170, 50, crossImg, root, 50, 50)
+BrushBtn = Button(70, 230, icon, root, 50, 50)
+EraserBtn = Button(150, 230, eraserImg, root, 50, 50)
+CircleBtn = Button(70, 300, CircleImg, root, 50, 50)
+SquareBtn = Button(150, 300, squareImg, root, 50, 50)
+BlackColorBtn = Button(65, 450, blackColorImg, root, 50, 50)
+BlueColorBtn = Button(150, 450, blueColorImg, root, 50, 50)
+RedColorBtn = Button(65, 520, redColorImg, root, 50, 50)
+GreenColorBtn = Button(150, 520, greenColorImg, root, 50, 50)
+YellowColorBtn = Button(65, 590, yellowColorImg, root, 50, 50)
+MagentaColorBtn = Button(150, 590, magentaColorImg, root, 50, 50)
+PinkColorBtn = Button(65, 660, pinkColorImg, root, 50, 50)
+OrangeColorBtn = Button(150, 660, orangeColorImg, root, 50, 50)
+LBColorBtn = Button(105, 730, LBColorImg, root, 50, 50)
+AscBtn = Button(300, 30, asciiImg, root, 100, 100)
+NumMat = Button(450, 30, numMatImg, root, 100, 100)
+RotateLeft = Button(990, 230, rotateLeftImg, root, 50, 50)
+RotateRight = Button(1060, 230, rotateRightImg, root, 50, 50)
+ReflectionAxisY = Button(950, 350, reflectionAxisYImg, root, 70, 70)
+ReflectionAxisX = Button(1080, 350, reflectionAxisXImg, root, 70, 70)
+negativeBtn = Button(957, 500, negativeImg, root, 180, 40)
+highContrBtn = Button(957, 570, highContrImg, root, 180, 80)
 
-
-buttonList = [uploadBtn, saveBtn, BrushBtn, EraserBtn, CircleBtn, SquareBtn, BlackColorBtn, BlueColorBtn, RedColorBtn, GreenColorBtn, YellowColorBtn, MagentaColorBtn, PinkColorBtn, OrangeColorBtn, LBColorBtn, AscBtn, NumMat]
+buttonList = [uploadBtn, saveBtn, BrushBtn, EraserBtn, CircleBtn, SquareBtn, BlackColorBtn, BlueColorBtn, RedColorBtn, GreenColorBtn, YellowColorBtn, MagentaColorBtn, PinkColorBtn, OrangeColorBtn, LBColorBtn, AscBtn, NumMat, RotateLeft, RotateRight, ReflectionAxisY, ReflectionAxisX, crossBtn, negativeBtn, highContrBtn]
 
 selected = SelectedBtn(70, 230, root)
 
@@ -68,6 +80,15 @@ toolbarTxtRect = toolbarTxt.get_rect(center=(133, 200))
 
 colorsTxt = font.render("COLORS", True, (0, 0, 0))
 colorsTxtRect = colorsTxt.get_rect(center=(133, 400))
+
+rotateTxt = font.render("ROTATE", True, (0, 0, 0))
+rotateTxtRect = rotateTxt.get_rect(center=(1050, 200))
+
+reflectionsTxt = font.render("REFLECTIONS", True, (0, 0, 0))
+reflectionsTxtRect = reflectionsTxt.get_rect(center=(1050, 320))
+
+othersTxt = font.render("OTHERS", True, (0, 0, 0))
+othersTxtRect = reflectionsTxt.get_rect(center=(1095, 450))
 
 # Bucle principal del programa
 
@@ -108,6 +129,20 @@ while running:
         Eng.chageColor(7)
     if LBColorBtn.pressed():
         Eng.chageColor(8)
+    if RotateLeft.pressed():
+        Eng.rotateMatLft()
+    if RotateRight.pressed():
+        Eng.rotateMatRgt()
+    if ReflectionAxisX.pressed():
+        Eng.reflectionV()
+    if ReflectionAxisY.pressed():
+        Eng.reflectionH()
+    if crossBtn.pressed():
+        Eng.closeImg()
+    if negativeBtn.pressed():
+        Eng.negative()
+    if highContrBtn.pressed():
+        Eng.contrast()
 
     root.fill((223, 223, 229))
 
@@ -117,6 +152,9 @@ while running:
     root.blit(logoImg, (970, -30))
     root.blit(toolbarTxt, toolbarTxtRect)
     root.blit(colorsTxt, colorsTxtRect)
+    root.blit(rotateTxt, rotateTxtRect)
+    root.blit(reflectionsTxt, reflectionsTxtRect)
+    root.blit(othersTxt, othersTxtRect)
 
     Eng.createMat(root)
     Eng.drawOverMat()
@@ -141,6 +179,13 @@ while running:
     LBColorBtn.draw()
     AscBtn.draw()
     NumMat.draw()
+    RotateLeft.draw()
+    RotateRight.draw()
+    ReflectionAxisY.draw()
+    ReflectionAxisX.draw()
+    crossBtn.draw()
+    negativeBtn.draw()
+    highContrBtn.draw()
 
     for i in range(1):
         for j in buttonList:
