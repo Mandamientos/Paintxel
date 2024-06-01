@@ -1,8 +1,10 @@
-import pygame
-from engine import Engine, Button, SelectedBtn
+from menus import mainMenu
 
-pygame.init()
+mainMenu()
 
+
+
+"""
 Eng = Engine()
 isOnButton = False
 icon = pygame.image.load("assets/images/brush.png")
@@ -201,4 +203,4 @@ while running:
 
     pygame.display.flip()
 
-pygame.quit()
+"""

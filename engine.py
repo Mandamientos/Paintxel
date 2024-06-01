@@ -1,6 +1,7 @@
 import pygame
 import tkinter as tk
 from tkinter import filedialog
+import math
 
 
 class Engine:
@@ -22,6 +23,19 @@ class Engine:
             7: (244, 196, 64), # Orange
             8: (0, 255, 204), # Light Blue
             9: (0, 0, 0) # Black
+        }
+        self.ascii_dic = {
+            0: "",
+            1: ".",
+            2: ":",
+            3: "-",
+            4: "=",
+            5: "¡",
+            6: "&",
+            7: "$",
+            8: "%",
+            9: "@"
+
         }
 
     def createMat(self, root):
@@ -54,12 +68,22 @@ class Engine:
         self.color = color
 
     def drawOverMat(self):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        col = (mouse_x - 300) // self.cSize
+        row = (mouse_y - 175) // self.cSize
         if pygame.mouse.get_pressed()[0] and self.editorMode == "Brush":
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            col = (mouse_x - 300) // self.cSize
-            row = (mouse_y - 175) // self.cSize
             if (0 <= col < self.cols) and (0 <= row < self.rows):
                 self.matrix[row][col] = self.color
+
+        elif pygame.mouse.get_pressed()[0] and self.editorMode == "Circle":
+
+            circle_radius = self.cSize // 6
+
+            for i in range(self.rows):
+                for j in range(self.cols):
+                    distance_to_center = math.sqrt((i - row) ** 2 + (j - col) ** 2)
+                    if abs(distance_to_center - circle_radius) <= 0.5:
+                        self.matrix[i][j] = self.color
 
     def eraseOverMat(self):
         if pygame.mouse.get_pressed()[0] and self.editorMode == "Eraser":
@@ -123,8 +147,15 @@ class Engine:
     def viewImg(self):
         print(self.matrix)
 
-    def viewMatNum(self):
-        pass
+    def viewMatNum(self, root):
+        font = pygame.font.Font("fonts/PixelifySans-VariableFont_wght.ttf", 20)
+
+        for i in range(len(self.matrix)):
+            for j in range(len(self.matrix[i])):
+                rect = pygame.Rect(300 + j * self.cSize, 175 + i * self.cSize, self.cSize, self.cSize)
+                colortxt = font.render(str(self.matrix[i][j]), True, (0, 0, 0))
+                colortxtRect = colortxt.get_rect(center=rect.center)
+                root.blit(colortxt, colortxtRect)
 
     def closeImg(self):
         self.matrix = [[0 for i in range(self.cols)] for i in range(self.rows)]
@@ -180,8 +211,17 @@ class Engine:
                 if self.matrix[row][col] != 0:
                     self.matrix[row][col] = 9 - self.matrix[row][col]
 
-    def ASCIIArt(self):
-        pass
+    def ASCIIArt(self, root):
+        font = pygame.font.Font("fonts/PixelifySans-VariableFont_wght.ttf", 30)
+
+        for i in range(len(self.matrix)):
+            for j in range(len(self.matrix[i])):
+                rect = pygame.Rect(300 + j * self.cSize, 175 + i * self.cSize, self.cSize, self.cSize)
+                sym = self.ascii_dic[self.matrix[i][j]]
+                colortxt = font.render(sym, True, (0, 0, 0))
+                colortxtRect = colortxt.get_rect(center=rect.center)
+                root.blit(colortxt, colortxtRect)
+
 
 class Button:
     def __init__(self, x, y, image, root, scale, scale2):
@@ -189,19 +229,21 @@ class Button:
         self.root = root
         self.x = x
         self.y = y
+        self.drawed = False
         self.clicked = False
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
 
     def draw(self):
         self.root.blit(self.image, (self.x, self.y))
+        self.drawed = True
 
     def pressed(self):
 
         command = False
         mousePos = pygame.mouse.get_pos()
 
-        if self.rect.collidepoint(mousePos):
+        if self.rect.collidepoint(mousePos) and self.drawed:
             if pygame.mouse.get_pressed()[0] and not self.clicked:
                 command = True
                 self.clicked = True
@@ -217,6 +259,8 @@ class Button:
         else:
             return False
 
+    def undraw(self):
+        self.drawed = False
 
 class SelectedBtn:
     def __init__(self, x, y, root):
