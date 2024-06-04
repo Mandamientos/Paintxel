@@ -9,9 +9,13 @@ class Engine:
         self.rows = 30
         self.cols = 30
         self.cSize = 20
+        self.inmcSize = 20
         self.editorMode = "Brush"
         self.color = 9
         self.matrix = [[0 for _ in range(self.cols)] for _ in range(self.rows)]
+        self.matbbox = pygame.Rect(300, 175, 600, 600)
+        self.offset_x = self.matbbox.x
+        self.offset_y = self.matbbox.y
         self.color_dic = {
             0: (255, 255, 255), # White
             1: (0, 126, 255), # Blue
@@ -39,27 +43,26 @@ class Engine:
         }
 
     def createMat(self, root):
-        matbbox = pygame.Rect(300, 175, 600, 600)
         mousepos = pygame.mouse.get_pos()
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[i])):
-                rect = pygame.Rect(300 + j * self.cSize, 175 + i * self.cSize, self.cSize, self.cSize)
+                rect = pygame.Rect(self.offset_x + j * self.cSize, self.offset_y + i * self.cSize, self.cSize, self.cSize)
                 color = self.color_dic[self.matrix[i][j]]
                 pygame.draw.rect(root, color, rect)
                 pygame.draw.rect(root, (55, 89, 89), rect, 1)
 
-        if matbbox.collidepoint(mousepos) and self.editorMode == "Brush":
-            pygame.mouse.set_visible(False)
-
-            cursor = pygame.image.load("assets/images/brush.png")
-            cursor = pygame.transform.scale(cursor, (50, 50))
-
-            cursorRect = cursor.get_rect()
-            cursorRect.center = (mousepos[0]+20, mousepos[1]-20)
-
-            root.blit(cursor, cursorRect)
-        else:
-            pygame.mouse.set_visible(True)
+        # if self.matbbox.collidepoint(mousepos) and self.editorMode == "Brush":
+        #     pygame.mouse.set_visible(False)
+        #
+        #     cursor = pygame.image.load("assets/images/brush.png")
+        #     cursor = pygame.transform.scale(cursor, (50, 50))
+        #
+        #     cursorRect = cursor.get_rect()
+        #     cursorRect.center = (mousepos[0]+20, mousepos[1]-20)
+        #
+        #     root.blit(cursor, cursorRect)
+        # else:
+        #     pygame.mouse.set_visible(True)
 
     def editorModeSelect(self, mode):
         self.editorMode = mode
@@ -69,27 +72,39 @@ class Engine:
 
     def drawOverMat(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        col = (mouse_x - 300) // self.cSize
-        row = (mouse_y - 175) // self.cSize
-        if pygame.mouse.get_pressed()[0] and self.editorMode == "Brush":
-            if (0 <= col < self.cols) and (0 <= row < self.rows):
-                self.matrix[row][col] = self.color
+        col = int((mouse_x - self.offset_x) // self.cSize)
+        row = int((mouse_y - self.offset_y) // self.cSize)
 
-        elif pygame.mouse.get_pressed()[0] and self.editorMode == "Circle":
+        if not (col < 0) and not (row < 0):
+            if pygame.mouse.get_pressed()[0] and self.editorMode == "Brush":
+                if (0 <= col < self.cols) and (0 <= row < self.rows):
+                    self.matrix[row][col] = self.color
 
-            circle_radius = self.cSize // 6
+            elif pygame.mouse.get_pressed()[0] and self.editorMode == "Circle":
 
-            for i in range(self.rows):
-                for j in range(self.cols):
-                    distance_to_center = math.sqrt((i - row) ** 2 + (j - col) ** 2)
-                    if abs(distance_to_center - circle_radius) <= 0.5:
-                        self.matrix[i][j] = self.color
+                circle_radius = self.inmcSize // 6
+
+                for i in range(self.rows):
+                    for j in range(self.cols):
+                        distance_to_center = math.sqrt((i - row) ** 2 + (j - col) ** 2)
+                        if abs(distance_to_center - circle_radius) <= 0.5:
+                            self.matrix[i][j] = self.color
+
+            elif pygame.mouse.get_pressed()[0] and self.editorMode == "Square":
+                half_side = (self.inmcSize // 2) // 4
+                for i in range(len(self.matrix)):
+                    for j in range(len(self.matrix[i])):
+                        if (col - half_side <= j <= col + half_side and
+                            (i == row - half_side or i == row + half_side)) or \
+                                (row - half_side <= i <= row + half_side and
+                                 (j == col - half_side or j == col + half_side)):
+                            self.matrix[i][j] = self.color
 
     def eraseOverMat(self):
         if pygame.mouse.get_pressed()[0] and self.editorMode == "Eraser":
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            col = (mouse_x - 300) // self.cSize
-            row = (mouse_y - 175) // self.cSize
+            col = int((mouse_x - self.offset_x) // self.cSize)
+            row = int((mouse_y - self.offset_y) // self.cSize)
             if (0 <= col < self.cols) and (0 <= row < self.rows):
                 self.matrix[row][col] = 0
 
@@ -141,18 +156,12 @@ class Engine:
             pygame.image.save(image_surface, save_path)
             print(f"Imagen guardada en {save_path}")
 
-    def editImg(self):
-        pass
-
-    def viewImg(self):
-        print(self.matrix)
-
     def viewMatNum(self, root):
         font = pygame.font.Font("fonts/PixelifySans-VariableFont_wght.ttf", 20)
 
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[i])):
-                rect = pygame.Rect(300 + j * self.cSize, 175 + i * self.cSize, self.cSize, self.cSize)
+                rect = pygame.Rect(300 + j * self.inmcSize, 175 + i * self.inmcSize, self.inmcSize, self.inmcSize)
                 colortxt = font.render(str(self.matrix[i][j]), True, (0, 0, 0))
                 colortxtRect = colortxt.get_rect(center=rect.center)
                 root.blit(colortxt, colortxtRect)
@@ -160,14 +169,39 @@ class Engine:
     def closeImg(self):
         self.matrix = [[0 for i in range(self.cols)] for i in range(self.rows)]
 
-    def showImg(self):
-        pass
-
     def zoomIn(self):
-        pass
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        oldcSize = self.cSize
+        self.cSize += 5
+
+        scale = self.cSize / oldcSize
+
+        self.offset_x = mouse_x - scale * (mouse_x - self.offset_x)
+        self.offset_y = mouse_y - scale * (mouse_y - self.offset_y)
+
 
     def zoomOut(self):
-        pass
+        if self.cSize == 5:
+            pass
+        else:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+
+            oldcSize = self.cSize
+            self.cSize -= 5
+
+            scale = self.cSize / oldcSize
+
+            self.offset_x = mouse_x - scale * (mouse_x - self.offset_x)
+            self.offset_y = mouse_y - scale * (mouse_y - self.offset_y)
+
+
+    def resetZoom(self):
+        self.cSize = self.inmcSize
+        self.offset_x = self.matbbox.x
+        self.offset_y = self.matbbox.y
+
+
     def rotateMatRgt(self):
         new_matrix = [[0 for _ in range(self.rows)] for _ in range(self.cols)]
         for i in range(self.rows):
@@ -210,17 +244,25 @@ class Engine:
             for col in range(self.cols):
                 if self.matrix[row][col] != 0:
                     self.matrix[row][col] = 9 - self.matrix[row][col]
+                elif self.matrix[row][col] == 0:
+                    self.matrix[row][col] = 9
 
     def ASCIIArt(self, root):
         font = pygame.font.Font("fonts/PixelifySans-VariableFont_wght.ttf", 30)
 
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[i])):
-                rect = pygame.Rect(300 + j * self.cSize, 175 + i * self.cSize, self.cSize, self.cSize)
+                rect = pygame.Rect(300 + j * self.inmcSize, 175 + i * self.inmcSize, self.inmcSize, self.inmcSize)
                 sym = self.ascii_dic[self.matrix[i][j]]
                 colortxt = font.render(sym, True, (0, 0, 0))
                 colortxtRect = colortxt.get_rect(center=rect.center)
                 root.blit(colortxt, colortxtRect)
+
+    def cColor(self, root):
+        colorRect = pygame.Rect(720, 60, 80, 80)
+        colorRectBorder = colorRect.inflate(10, 10)
+        pygame.draw.rect(root, (223, 223, 229), colorRectBorder)
+        pygame.draw.rect(root, self.color_dic[self.color], colorRect)
 
 
 class Button:

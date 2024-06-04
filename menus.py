@@ -1,6 +1,5 @@
 import sys
 import time
-
 import pygame
 import os
 from engine import Engine, Button, SelectedBtn
@@ -35,8 +34,8 @@ saveBtn = Button(100, 50, pygameImgs[21], root, 50, 50)
 crossBtn = Button(170, 50, pygameImgs[7], root, 50, 50)
 BrushBtn = Button(70, 230, pygameImgs[5], root, 50, 50)
 EraserBtn = Button(150, 230, pygameImgs[8], root, 50, 50)
-CircleBtn = Button(70, 300, pygameImgs[6], root, 50, 50)
-SquareBtn = Button(150, 300, pygameImgs[22], root, 50, 50)
+CircleBtn = Button(71, 303, pygameImgs[6], root, 50, 50)
+SquareBtn = Button(152, 303, pygameImgs[22], root, 50, 50)
 BlackColorBtn = Button(65, 450, pygameImgs[3], root, 50, 50)
 BlueColorBtn = Button(150, 450, pygameImgs[4], root, 50, 50)
 RedColorBtn = Button(65, 520, pygameImgs[18], root, 50, 50)
@@ -55,8 +54,9 @@ ReflectionAxisX = Button(1080, 350, pygameImgs[1], root, 70, 70)
 negativeBtn = Button(957, 500, pygameImgs[14], root, 180, 40)
 highContrBtn = Button(957, 570, pygameImgs[10], root, 180, 80)
 homeBtn = Button(70, 50, pygameImgs[26], root, 50, 50)
+resetZoomBtn = Button(1000, 670, pygameImgs[27], root, 120, 120)
 
-buttonList = [uploadBtn, saveBtn, BrushBtn, EraserBtn, CircleBtn, SquareBtn, BlackColorBtn, BlueColorBtn, RedColorBtn, GreenColorBtn, YellowColorBtn, MagentaColorBtn, PinkColorBtn, OrangeColorBtn, LBColorBtn, AscBtn, NumMat, RotateLeft, RotateRight, ReflectionAxisY, ReflectionAxisX, crossBtn, negativeBtn, highContrBtn]
+buttonList = [uploadBtn, saveBtn, BrushBtn, EraserBtn, CircleBtn, SquareBtn, BlackColorBtn, BlueColorBtn, RedColorBtn, GreenColorBtn, YellowColorBtn, MagentaColorBtn, PinkColorBtn, OrangeColorBtn, LBColorBtn, AscBtn, NumMat, RotateLeft, RotateRight, ReflectionAxisY, ReflectionAxisX, crossBtn, negativeBtn, highContrBtn, resetZoomBtn]
 buttonListNumMat = [homeBtn]
 
 selected = SelectedBtn(70, 230, root)
@@ -88,6 +88,9 @@ reflectionsTxtRect = reflectionsTxt.get_rect(center=(1050, 320))
 othersTxt = font.render("OTHERS", True, (0, 0, 0))
 othersTxtRect = reflectionsTxt.get_rect(center=(1095, 450))
 
+cColorTxt = font.render("CURRENT COLOR", True, (0, 0, 0))
+cColorTxtRect = reflectionsTxt.get_rect(center=(750, 30))
+
 # Bucle principal del programa
 
 def mainMenu():
@@ -96,6 +99,11 @@ def mainMenu():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.MOUSEWHEEL:
+                if event.y == 1:
+                    Eng.zoomIn()
+                elif event.y == -1:
+                    Eng.zoomOut()
 
         if uploadBtn.pressed():
             Eng.uploadImg()
@@ -150,11 +158,26 @@ def mainMenu():
             for k in buttonList:
                 k.undraw()
             asciiArtMenu()
+        if SquareBtn.pressed():
+            Eng.editorModeSelect("Square")
+            selected.changePos(150, 300)
+        if resetZoomBtn.pressed():
+            Eng.resetZoom()
 
         root.fill((223, 223, 229))
 
+        Eng.createMat(root)
+
+        tools_rect = pygame.Rect(0, 0, 250, 800)
+        pygame.draw.rect(root, (223, 223, 229), tools_rect)
+
+        others_rect = pygame.Rect(920, 0, 280, 800)
+        pygame.draw.rect(root, (223, 223, 229), others_rect)
+
         nav_rect = pygame.Rect(0, 0, 1200, 150)
         pygame.draw.rect(root, (255, 255, 255), nav_rect)
+
+        Eng.cColor(root)
 
         root.blit(pygameImgs[12], (970, -30))
         root.blit(toolbarTxt, toolbarTxtRect)
@@ -162,8 +185,8 @@ def mainMenu():
         root.blit(rotateTxt, rotateTxtRect)
         root.blit(reflectionsTxt, reflectionsTxtRect)
         root.blit(othersTxt, othersTxtRect)
+        root.blit(cColorTxt, cColorTxtRect)
 
-        Eng.createMat(root)
         Eng.drawOverMat()
         Eng.eraseOverMat()
 
