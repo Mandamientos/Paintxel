@@ -43,6 +43,7 @@ class Engine:
         }
 
     def createMat(self, root):
+        # Renderiza la matriz de la cuadrícula en la pantalla.
         mousepos = pygame.mouse.get_pos()
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[i])):
@@ -65,12 +66,15 @@ class Engine:
         #     pygame.mouse.set_visible(True)
 
     def editorModeSelect(self, mode):
+        # Cambia el modo de edición (pincel, círculo, cuadrado, etc.).
         self.editorMode = mode
 
     def chageColor(self, color):
+        # Cambia el color de dibujo.
         self.color = color
 
     def drawOverMat(self):
+        # Dibuja sobre la matriz basado en el modo de edición (pincel, círculo, cuadrado).
         mouse_x, mouse_y = pygame.mouse.get_pos()
         col = int((mouse_x - self.offset_x) // self.cSize)
         row = int((mouse_y - self.offset_y) // self.cSize)
@@ -87,7 +91,9 @@ class Engine:
                 for i in range(self.rows):
                     for j in range(self.cols):
                         distance_to_center = math.sqrt((i - row) ** 2 + (j - col) ** 2)
+                        print(distance_to_center - circle_radius)
                         if abs(distance_to_center - circle_radius) <= 0.5:
+                            print("Pixel sobre la circunferencia")
                             self.matrix[i][j] = self.color
 
             elif pygame.mouse.get_pressed()[0] and self.editorMode == "Square":
@@ -101,6 +107,7 @@ class Engine:
                             self.matrix[i][j] = self.color
 
     def eraseOverMat(self):
+        # Borra partes de la matriz cuando está en modo borrador.
         if pygame.mouse.get_pressed()[0] and self.editorMode == "Eraser":
             mouse_x, mouse_y = pygame.mouse.get_pos()
             col = int((mouse_x - self.offset_x) // self.cSize)
@@ -109,6 +116,7 @@ class Engine:
                 self.matrix[row][col] = 0
 
     def uploadImg(self):
+        # Carga un archivo de imagen en la matriz.
         window = tk.Tk()
         window.withdraw()
         path = filedialog.askopenfilename(filetypes=[("PNG files", "*.png"), ("All files", "*.*")])
@@ -136,6 +144,7 @@ class Engine:
                         break
 
     def saveImg(self):
+        # Guarda la matriz actual como un archivo de imagen.
         image_surface = pygame.Surface((self.cols * self.cSize, self.rows * self.cSize))
 
         for row in range(self.rows):
@@ -157,6 +166,7 @@ class Engine:
             print(f"Imagen guardada en {save_path}")
 
     def viewMatNum(self, root):
+        # Renderiza la representación numérica de la matriz.
         font = pygame.font.Font("fonts/PixelifySans-VariableFont_wght.ttf", 20)
 
         for i in range(len(self.matrix)):
@@ -167,9 +177,11 @@ class Engine:
                 root.blit(colortxt, colortxtRect)
 
     def closeImg(self):
+        # Borra la matriz.
         self.matrix = [[0 for i in range(self.cols)] for i in range(self.rows)]
 
     def zoomIn(self):
+        # Acerca la vista de la matriz.
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
         oldcSize = self.cSize
@@ -182,6 +194,7 @@ class Engine:
 
 
     def zoomOut(self):
+        # Aleja la vista de la matriz.
         if self.cSize == 5:
             pass
         else:
@@ -197,12 +210,14 @@ class Engine:
 
 
     def resetZoom(self):
+        # Restablece el nivel de zoom de la matriz.
         self.cSize = self.inmcSize
         self.offset_x = self.matbbox.x
         self.offset_y = self.matbbox.y
 
 
     def rotateMatRgt(self):
+        # Rota la matriz hacia la derecha.
         new_matrix = [[0 for _ in range(self.rows)] for _ in range(self.cols)]
         for i in range(self.rows):
             for j in range(self.cols):
@@ -211,6 +226,7 @@ class Engine:
         self.matrix = new_matrix
 
     def rotateMatLft(self):
+        # Rota la matriz hacia la izquierda.
         new_matrix = [[0 for _ in range(self.rows)] for _ in range(self.cols)]
         for i in range(self.rows):
             for j in range(self.cols):
@@ -219,6 +235,7 @@ class Engine:
         self.matrix = new_matrix
 
     def reflectionH(self):
+        # Refleja la matriz horizontalmente.
         new_matrix = [[0 for _ in range(self.cols)] for _ in range(self.rows)]
         for i in range(self.rows):
             for j in range(self.cols):
@@ -226,12 +243,14 @@ class Engine:
         self.matrix = new_matrix
 
     def reflectionV(self):
+        # Refleja la matriz verticalmente.
         new_matrix = [[0 for _ in range(self.cols)] for _ in range(self.rows)]
         for i in range(self.rows):
             new_matrix[self.rows - i - 1] = self.matrix[i]
         self.matrix = new_matrix
 
     def contrast(self):
+        # Ajusta el contraste de la matriz.
         for row in range(self.rows):
             for col in range(self.cols):
                 if self.matrix[row][col] <= 4:
@@ -240,6 +259,7 @@ class Engine:
                     self.matrix[row][col] = 9
 
     def negative(self):
+        # Aplica el efecto negativo a la matriz.
         for row in range(self.rows):
             for col in range(self.cols):
                 if self.matrix[row][col] != 0:
@@ -248,6 +268,7 @@ class Engine:
                     self.matrix[row][col] = 9
 
     def ASCIIArt(self, root):
+        # Renderiza la representación ASCII de la matriz.
         font = pygame.font.Font("fonts/PixelifySans-VariableFont_wght.ttf", 30)
 
         for i in range(len(self.matrix)):
@@ -259,6 +280,7 @@ class Engine:
                 root.blit(colortxt, colortxtRect)
 
     def cColor(self, root):
+        # Renderiza el color actualmente seleccionado en la pantalla.
         colorRect = pygame.Rect(720, 60, 80, 80)
         colorRectBorder = colorRect.inflate(10, 10)
         pygame.draw.rect(root, (223, 223, 229), colorRectBorder)
